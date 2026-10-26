@@ -28,7 +28,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Soul Sanctuary API", version="1.0.0", lifespan=lifespan)
 origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:8501,http://127.0.0.1:8501").split(",") if o.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+allow_all = "*" in origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if allow_all else origins,
+    allow_credentials=not allow_all,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 for r in (auth_routes.router, survey_routes.router, dashboard_routes.router, data_routes.router, social_routes.router):
     app.include_router(r)
