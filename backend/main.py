@@ -18,6 +18,9 @@ from seed import run_seed  # noqa: E402
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: connect, create tables, seed, start optional Meta sync."""
+    if os.getenv("VERCEL") == "1":
+        yield
+        return
     check_connection()
     Base.metadata.create_all(bind=engine)
     print("Tables ready (create_all).", flush=True)
@@ -39,6 +42,12 @@ app.add_middleware(
 
 for r in (auth_routes.router, survey_routes.router, dashboard_routes.router, data_routes.router, social_routes.router):
     app.include_router(r)
+
+
+@app.get("/", tags=["system"])
+def root() -> dict:
+    """Root info."""
+    return {"name": "Soul Sanctuary API", "status": "online", "docs": "/docs", "health": "/health"}
 
 
 @app.get("/health", tags=["system"])

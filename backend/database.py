@@ -21,6 +21,7 @@ if not DATABASE_URL:
         "DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DBNAME"
     )
 
+DATABASE_URL = DATABASE_URL.strip("\"'")
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
